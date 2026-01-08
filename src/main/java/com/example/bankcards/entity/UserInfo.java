@@ -8,8 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,11 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
-//@Data
-//@Builder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,18 +26,16 @@ import java.util.UUID;
 @Setter
 public class UserInfo implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String username;
 
-//    @Column(unique = true)
-//    private String email;
-
     @Column(nullable = false)
     private String password; // Note: In real scenarios, exclude from JSON serialization with @JsonIgnore
 
+    @Column(nullable = false)
     private Role role; // Roles are simplified for illustration
 
     @Override

@@ -1,18 +1,15 @@
 package com.example.bankcards.config;
 
 import com.example.bankcards.security.JwtAuthFilter;
-import com.example.bankcards.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -23,11 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserService userService;
-//    private final PasswordEncoder passwordEncoder;
 
     // Reduced whitelist for simplicity
     private static final String[] WHITE_LIST_URL = {
+        "/users/welcome",
         "/users/new",
         "/users/authenticate",
         "/auth/login",
@@ -43,21 +39,13 @@ public class SecurityConfig {
                 .anyRequest().authenticated()) // All other requests must be authenticated
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session management
-            .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .build(); // Registering our JwtAuthFilter
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService); // Setting our custom user details service
-        provider.setPasswordEncoder(passwordEncoder()); // Setting the password encoder
-        return provider;
+    public AuthenticationManager authenticationManager(
+        AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
