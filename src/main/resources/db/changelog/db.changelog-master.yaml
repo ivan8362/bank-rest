@@ -7,7 +7,7 @@ databaseChangeLog:
       author: ivan-lavrov
       changes:
         - createTable:
-            tableName: card
+            tableName: cards
             columns:
               - column:
                   name: id
@@ -17,26 +17,33 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: number
+                  name: card_number_encrypted
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last4
+                  type: VARCHAR(4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
                   type: bigint
                   constraints:
                     nullable: false
               - column:
-                  name: owner
-                  type: varchar(100)
-              - column:
                   name: expiry_date
-                  type: date
+                  type: VARCHAR(7) # '2026-01'
                   constraints:
                     nullable: false
               - column:
                   name: status
-                  type: smallint
+                  type: VARCHAR(20)
                   constraints:
                     nullable: false
               - column:
                   name: balance
-                  type: numeric(20,2)
+                  type: numeric(19,2)
                   constraints:
                     nullable: false
         - createTable:
@@ -61,6 +68,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: role
-                  type: smallint
+                  type: VARCHAR(20)
                   constraints:
                     nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: cards
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_cards_user

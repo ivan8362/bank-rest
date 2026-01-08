@@ -12,8 +12,8 @@ public class PasswordEncoderInitializer {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public PasswordEncoderInitializer(BCryptPasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
+    public PasswordEncoderInitializer(BCryptPasswordEncoder cryptPasswordEncoder) {
+        this.passwordEncoder = cryptPasswordEncoder;
     }
 
     @PostConstruct

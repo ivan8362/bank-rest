@@ -1,11 +1,8 @@
 package com.example.bankcards.security;
 
-import com.example.bankcards.entity.UserInfo;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -13,12 +10,8 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
-//@Component
 public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
@@ -26,10 +19,6 @@ public class JwtService {
 
     @Value("${application.security.jwt.expiration}")
     private long expiration;
-//    private static final String SECRET =
-//        "my-super-secret-key-my-super-secret-key";
-
-//    private static final long EXPIRATION = 1000 * 60 * 60; // 1 час
 
     private Key key() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -112,6 +101,5 @@ public class JwtService {
             .parseClaimsJws(token)
             .getBody();
     }
-
  */
 }

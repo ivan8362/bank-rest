@@ -1,11 +1,16 @@
 package com.example.bankcards.entity;
 
 import com.example.bankcards.security.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 public class UserInfo implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,10 +39,15 @@ public class UserInfo implements UserDetails {
     private String username;
 
     @Column(nullable = false)
-    private String password; // Note: In real scenarios, exclude from JSON serialization with @JsonIgnore
+    @JsonIgnore
+    private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // Roles are simplified for illustration
+    private Role role;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<Card> cards;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -50,4 +61,16 @@ public class UserInfo implements UserDetails {
 //    private boolean isEnabled;
 //    private boolean accountNonLocked;
 //    private boolean credentialsNonExpired;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserInfo)) return false;
+        return id != null && id.equals(((UserInfo) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }

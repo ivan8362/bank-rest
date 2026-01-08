@@ -11,7 +11,7 @@ server:
 
 spring:
   datasource:
-    jdbcUrl: jdbc:postgresql://localhost:5432/postgres
+    #jdbcUrl: jdbc:postgresql://localhost:5432/postgres
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 1234
@@ -22,6 +22,9 @@ spring:
 application:
   security:
     jwt:
-      secret-key: secretkey
+      secret-key: this_is_a_very_long_and_secure_secret_key_32bytes_minimum
   # a day
       expiration: 86400000
+card:
+  crypto:
+    secret: "1234567890abcdef" # 16 bytes, ТОЛЬКО ДЛЯ DEV
