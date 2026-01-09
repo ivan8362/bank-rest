@@ -1,14 +1,19 @@
 package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.UserDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,14 +29,10 @@ import com.example.bankcards.service.UserService;
 @RequiredArgsConstructor
 public class UserController {
 
-//    @Autowired
     private final UserService userService;
-
-//    @Autowired
     private final JwtService jwtService;
-
-//    @Autowired
     private final AuthenticationManager authenticationManager;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/welcome")
     public String welcome() {
@@ -49,7 +50,7 @@ public class UserController {
     @PostMapping("/new")
 //    @CrossOrigin("http://localhost:3000/")
 //    public String addNewUser(@RequestBody UserInfo userInfo) {
-    public String addNewUser(@RequestBody UserDto user) {
+    public String addNewUser(@Valid @RequestBody UserDto user) {
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(user.getUsername());
         userInfo.setPassword(user.getPassword());
@@ -68,7 +69,7 @@ public class UserController {
     public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-        System.out.println("hello");
+        System.out.println("hello"); // todo
         if (authentication.isAuthenticated()) {
 //            UserInfo user = new UserInfo();
 //            user.setId(null);
@@ -78,5 +79,12 @@ public class UserController {
         } else {
             throw new UsernameNotFoundException("invalid user request!");
         }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        LOGGER.info("Called API DELETE /users/{id}");
+        userService.deleteUser(userId);
     }
 }

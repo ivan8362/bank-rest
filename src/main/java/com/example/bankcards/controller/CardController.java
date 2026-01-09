@@ -2,16 +2,28 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.CardDto;
 import com.example.bankcards.dto.CreateCardDto;
-import com.example.bankcards.dto.UserDto;
+import com.example.bankcards.dto.EditCardDto;
+import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Status;
+import com.example.bankcards.entity.UserInfo;
 import com.example.bankcards.service.CardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -24,6 +36,7 @@ import java.util.List;
 public class CardController {
 
     private final CardService cardService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardController.class);
 
     @GetMapping("/hello")
     public ResponseEntity<?> getById() {
@@ -31,23 +44,97 @@ public class CardController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/cards")
-    public void createCard(@RequestBody CreateCardDto createCardDto) {
-        cardService.createCard(createCardDto.getCardNumber(), createCardDto.getUser());
+    @PostMapping("/new")
+    public Long createCard(@Valid @RequestBody CreateCardDto createCardDto) {
+        LOGGER.info("Called API POST /cards/new");
+        return cardService.createCard(createCardDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<CardDto> getAllCards() {
+        LOGGER.info("Called API GET /cards/all");
+        return cardService.getAllCards();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/status")
+    public void editCardStatus(@Valid @RequestBody EditCardDto editCardDto) {
+        LOGGER.info("Called API PATCH /cards/status");
+        cardService.editCard(editCardDto);
+    }
+
+    /**
+     * Понятно, что админ никогда не будет изменять баланс карты
+     * пользователя. Но в ТЗ написано "CRUD для карт", поэтому
+     * делаю, как написано.
+     * @param cardDto банковская карта.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping
+    public void updateCard(@Valid @RequestBody CardDto cardDto) {
+        LOGGER.info("Called API PATCH /cards");
+        cardService.updateCard(cardDto);
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{cardId}")
+    public void deleteCard(@PathVariable Long cardId) {
+        LOGGER.info("Called API DELETE /cards/{id}");
+        cardService.deleteCard(cardId);
+    }
+
+    @GetMapping("/old")
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/my")
-    public List<CardDto> myCards() {
-        return List.of(new CardDto(2L, "ABCD", YearMonth.of(2022, 1),
-            Status.ACTIVE, BigDecimal.ONE));
+    public List<CardDto> myCards(Authentication authentication) {
+        UserInfo user = (UserInfo) authentication.getPrincipal();
+        return cardService.getMyCards1(user);
     }
 
-//    @GetMapping("/my1")
-//    @PreAuthorize("hasRole('USER')")
-//    public List<CardDto> myCards(Authentication authentication) {
-//        UserInfo user = (UserInfo) authentication.getPrincipal();
-//        return cardService.getMyCards(user);
-//    }
+    @GetMapping("my")
+    @PreAuthorize("hasRole('USER')")
+    public Page<CardDto> myCards(
+        Authentication authentication,
+        @RequestParam(required = false) Status status,
+        @RequestParam(required = false) YearMonth expiryBefore,
+        @RequestParam(required = false) YearMonth expiryAfter,
+        @RequestParam(required = false) BigDecimal balanceMin,
+        @RequestParam(required = false) BigDecimal balanceMax,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        LOGGER.info("Called API GET /cards/my");
 
+        UserInfo user = (UserInfo) authentication.getPrincipal();
+        return cardService.getMyCards(
+            user,
+            status,
+            expiryBefore,
+            expiryAfter,
+            balanceMin,
+            balanceMax,
+            PageRequest.of(page, size)
+        );
+    }
+
+    @PostMapping("/transfer")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> transferMoney(@Valid @RequestBody TransferRequest request,
+                                                Authentication authentication) {
+        LOGGER.info("Called API POST /cards/transfer");
+        UserInfo user = (UserInfo) authentication.getPrincipal();
+        cardService.transferMoney(request, user);
+        return ResponseEntity.ok("Transfer successful");
+    }
+
+    @GetMapping("/balance/{cardId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<BigDecimal> transferMoney(@PathVariable Long cardId,
+                                                Authentication authentication) {
+        LOGGER.info("Called API GET /cards/balance/{cardId}");
+        UserInfo user = (UserInfo) authentication.getPrincipal();
+        cardService.getAmount(cardId, user);
+        return ResponseEntity.ok(cardService.getAmount(cardId, user));
+    }
 }

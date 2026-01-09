@@ -1,22 +1,16 @@
 package com.example.bankcards.dto;
 
 import com.example.bankcards.entity.Status;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
-//@Getter
-//@Setter
-//@AllArgsConstructor
-//@NoArgsConstructor
-public record CardDto (Long id,
+public record CardDto (@NotNull Long id,
                        String maskedNumber,
+                       Long owner,
                        YearMonth expiryDate,
                        Status status,
-                       BigDecimal balance) {
-//    private long number;
-//    private long owner;
-//    private YearMonth expireDate;
-//    private Status status;
-//    private BigDecimal balance;
-}
+                       BigDecimal balance) {}
