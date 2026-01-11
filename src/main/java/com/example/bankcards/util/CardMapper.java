@@ -2,9 +2,7 @@ package com.example.bankcards.util;
 
 import com.example.bankcards.dto.CardDto;
 import com.example.bankcards.entity.Card;
-import org.springframework.stereotype.Component;
 
-//@Component
 public class CardMapper {
 
     private CardMapper() {
@@ -16,6 +14,4 @@ public class CardMapper {
             card.getExpiryDate(), card.getStatus(), card.getBalance());
     }
 
-//    public Card toEntity(CardDto cardDto) {
-//    }
 }

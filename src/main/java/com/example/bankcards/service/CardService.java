@@ -216,4 +216,33 @@ public class CardService {
 
         LOGGER.info("Card {} updated by ADMIN", card.getId());
     }
+
+    @Transactional
+    public void requestBlock(Long cardId, UserInfo user) {
+
+        Card card = cardRepository.findById(cardId)
+            .orElseThrow(() -> new EntityNotFoundException("Card not found"));
+
+        // 1. Проверка владельца
+        if (!card.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You are not the owner of this card");
+        }
+
+        // 2. Проверка статуса
+        if (card.getStatus() == Status.BLOCKED) {
+            throw new IllegalStateException("Card already blocked");
+        }
+
+        if (card.getStatus() == Status.EXPIRED) {
+            throw new IllegalStateException("Expired card cannot be blocked");
+        }
+
+        // 3. Блокируем
+        card.setStatus(Status.BLOCKED);
+
+        cardRepository.save(card);
+
+        LOGGER.info("User {} requested block for card {}", user.getId(), cardId);
+    }
+
 }

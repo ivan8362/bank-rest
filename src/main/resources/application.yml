@@ -6,12 +6,11 @@
 #  - Настроить параметры безопасности и JWT.
 #  - Включить Swagger UI.
 server:
-  address: 127.0.0.1
+  address: 0.0.0.0
   port: 8080
 
 spring:
   datasource:
-    #jdbcUrl: jdbc:postgresql://localhost:5432/postgres
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 1234
@@ -19,6 +18,9 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
 application:
   security:
     jwt:
@@ -28,3 +30,11 @@ application:
 card:
   crypto:
     secret: "1234567890abcdef" # 16 bytes, ТОЛЬКО ДЛЯ DEV
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

@@ -137,4 +137,12 @@ public class CardController {
         cardService.getAmount(cardId, user);
         return ResponseEntity.ok(cardService.getAmount(cardId, user));
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/{cardId}/block")
+    public void requestBlock(@PathVariable Long cardId, Authentication auth) {
+        UserInfo user = (UserInfo) auth.getPrincipal();
+        cardService.requestBlock(cardId, user);
+    }
+
 }

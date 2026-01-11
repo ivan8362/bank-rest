@@ -27,7 +27,8 @@ public class SecurityConfig {
         "/users/new",
         "/users/authenticate",
         "/auth/login",
-        "/auth/register"
+        "/auth/register",
+        "/actuator/health"
     };
 
     @Bean
