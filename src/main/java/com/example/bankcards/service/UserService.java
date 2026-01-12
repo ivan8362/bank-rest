@@ -19,16 +19,15 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-    public String addUser(UserInfo userInfo) {
+    public UserInfo addUser(UserInfo userInfo) {
         userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-        repository.save(userInfo);
-        return "user added to system ";
+        return repository.save(userInfo);
     }
 
     @Override
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         return repository.findByUsername(name)
-            .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+            .orElseThrow(() -> new UsernameNotFoundException(String.format("Username %s not found", name)));
     }
 
     public void deleteUser(Long userId) {

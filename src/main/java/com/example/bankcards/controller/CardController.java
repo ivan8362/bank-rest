@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -44,14 +45,14 @@ public class CardController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/new")
+    @PostMapping
     public Long createCard(@Valid @RequestBody CreateCardDto createCardDto) {
         LOGGER.info("Called API POST /cards/new");
         return cardService.createCard(createCardDto);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/all")
+    @GetMapping("/cards")
     public List<CardDto> getAllCards() {
         LOGGER.info("Called API GET /cards/all");
         return cardService.getAllCards();
@@ -85,11 +86,11 @@ public class CardController {
         cardService.deleteCard(cardId);
     }
 
-    @GetMapping("/old")
+    @GetMapping("/simple")
     @PreAuthorize("hasRole('USER')")
-    public List<CardDto> myCards(Authentication authentication) {
+    public List<CardDto> myCardsNoSearch(Authentication authentication) {
         UserInfo user = (UserInfo) authentication.getPrincipal();
-        return cardService.getMyCards1(user);
+        return cardService.getMyCardsNoSearch(user);
     }
 
     @GetMapping("my")
@@ -97,8 +98,8 @@ public class CardController {
     public Page<CardDto> myCards(
         Authentication authentication,
         @RequestParam(required = false) Status status,
-        @RequestParam(required = false) YearMonth expiryBefore,
-        @RequestParam(required = false) YearMonth expiryAfter,
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth expiryBefore,
+        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth expiryAfter,
         @RequestParam(required = false) BigDecimal balanceMin,
         @RequestParam(required = false) BigDecimal balanceMax,
         @RequestParam(defaultValue = "0") int page,
@@ -130,12 +131,12 @@ public class CardController {
 
     @GetMapping("/balance/{cardId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<BigDecimal> transferMoney(@PathVariable Long cardId,
+    public ResponseEntity<BigDecimal> getBalance(@PathVariable Long cardId,
                                                 Authentication authentication) {
         LOGGER.info("Called API GET /cards/balance/{cardId}");
         UserInfo user = (UserInfo) authentication.getPrincipal();
-        cardService.getAmount(cardId, user);
-        return ResponseEntity.ok(cardService.getAmount(cardId, user));
+        BigDecimal amount = cardService.getAmount(cardId, user);
+        return ResponseEntity.ok(amount);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -144,5 +145,4 @@ public class CardController {
         UserInfo user = (UserInfo) auth.getPrincipal();
         cardService.requestBlock(cardId, user);
     }
-
 }

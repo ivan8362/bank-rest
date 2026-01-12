@@ -37,12 +37,11 @@ public class CardService {
     private final UserInfoRepository userRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(CardService.class);
 
-    public List<CardDto> getMyCards1(UserInfo user) {
-        return cardRepository.findByOwner(user).stream()
+    public List<CardDto> getMyCardsNoSearch(UserInfo user) {
+        return cardRepository.findAllByOwner(user).stream()
             .map(card -> new CardDto(
                 card.getId(),
-//                maskCardNumber(card.getCardNumberEncrypted()),
-                maskCardNumber(cardCryptoService.decrypt(card.getCardNumberEncrypted())),
+                "**** **** **** " + card.getLast4(),
                 card.getOwner().getId(),
                 card.getExpiryDate(),
                 card.getStatus(),
@@ -83,15 +82,10 @@ public class CardService {
             .map(CardMapper::toDto);
     }
 
-    private String maskCardNumber(String plainCardNumber) {
-        String last4 = plainCardNumber.substring(plainCardNumber.length() - 4);
-        return "**** **** **** " + last4;
-    }
-
     public Long createCard(final CreateCardDto createDto) {
         String cardNumber = createDto.getCardNumber();
         UserInfo owner = userRepository.findById(createDto.getUserId())
-            .orElseThrow(() -> new RuntimeException(String
+            .orElseThrow(() -> new EntityNotFoundException(String
                 .format("User with id: %d not found", createDto.getUserId())));
 
         String encrypted = cardCryptoService.encrypt(cardNumber);
@@ -116,7 +110,7 @@ public class CardService {
 
     public void editCard(EditCardDto editCardDto) {
         if (editCardDto.getStatus().equals(Status.EXPIRED)) {
-            throw new RuntimeException("Called API edit-card with a wrong card status.");
+            throw new IllegalStateException("Called API edit-card with a wrong card status.");
         }
         Card card = cardRepository.findById(editCardDto.getCardId())
             .orElseThrow(() -> new EntityNotFoundException("Card not found: " + editCardDto.getCardId()));
@@ -130,15 +124,6 @@ public class CardService {
         LOGGER.info("Successfully deleted card with id: {}", cardId);
     }
 
-//    public void transferMoney1(TransferRequest request) {
-//        Card cardFrom = cardRepository.getReferenceById(request.getFromCard());
-//        if (cardFrom.getBalance().compareTo(request.getAmount()) < 0)  {
-//            LOGGER.error("Card with id: {} has insufficient funds for the transfer", cardFrom.getId());
-//            throw new RuntimeException(String
-//                .format("Card with id: %d has insufficient funds for the transfer", cardFrom.getId()));
-//        }
-//    }
-
     @Transactional
     public void transferMoney(TransferRequest request, UserInfo user) {
         if (request.getFromCard().equals(request.getToCard())) {
@@ -148,7 +133,7 @@ public class CardService {
         Card cardFrom = cardRepository.findById(request.getFromCard())
             .orElseThrow(() -> new EntityNotFoundException("Card not found: " + request.getFromCard()));
         Card cardTo = cardRepository.findById(request.getToCard())
-            .orElseThrow(() -> new EntityNotFoundException("Card not found: " + request.getToCard()));;
+            .orElseThrow(() -> new EntityNotFoundException("Card not found: " + request.getToCard()));
 
         if (!cardFrom.getOwner().equals(user) || !cardTo.getOwner().equals(user)) {
             throw new AccessDeniedException("Card does not belong to user");
@@ -171,24 +156,12 @@ public class CardService {
 
     public BigDecimal getAmount(final Long cardId, UserInfo user) {
         Card card = cardRepository.findById(cardId)
-            .orElseThrow(() -> new EntityNotFoundException("Card not found: " + cardId));;
+            .orElseThrow(() -> new EntityNotFoundException("Card not found: " + cardId));
         if (!card.getOwner().equals(user)) {
             throw new AccessDeniedException("Card does not belong to user");
         }
         return card.getBalance();
     }
-/*
-    public void updateCard1(CardDto cardDto) {
-//        if (editCardDto.getStatus().equals(Status.EXPIRED)) {
-//            throw new RuntimeException("Called API edit-card with a wrong card status.");
-//        }
-        Card card = cardRepository.findById(cardDto.id())
-            .orElseThrow(() -> new EntityNotFoundException("Card not found: " + cardDto.id()));;
-        card.setStatus(cardDto.getStatus());
-        cardRepository.saveAndFlush(card);
-        LOGGER.info("Successfully updated card's status. Card id: {}", card.getId());
-    }
- */
 
     @Transactional
     public void updateCard(CardDto dto) {
@@ -244,5 +217,4 @@ public class CardService {
 
         LOGGER.info("User {} requested block for card {}", user.getId(), cardId);
     }
-
 }

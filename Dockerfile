@@ -1,7 +1,3 @@
-#FROM ubuntu:latest
-#LABEL authors="ivan"
-#ENTRYPOINT ["top", "-b"]
-
 FROM amazoncorretto:17
 
 WORKDIR /app

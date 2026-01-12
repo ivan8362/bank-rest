@@ -13,5 +13,4 @@ public class CardMapper {
             card.getOwner().getId(),
             card.getExpiryDate(), card.getStatus(), card.getBalance());
     }
-
 }

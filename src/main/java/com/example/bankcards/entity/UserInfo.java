@@ -57,10 +57,7 @@ public class UserInfo implements UserDetails {
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
-//    private boolean accountNonExpired;
-//    private boolean isEnabled;
-//    private boolean accountNonLocked;
-//    private boolean credentialsNonExpired;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -72,5 +69,4 @@ public class UserInfo implements UserDetails {
     public int hashCode() {
         return getClass().hashCode();
     }
-
 }

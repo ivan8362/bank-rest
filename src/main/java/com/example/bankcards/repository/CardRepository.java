@@ -5,9 +5,9 @@ import com.example.bankcards.entity.UserInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, Long>, JpaSpecificationExecutor<Card> {
 
-    Optional<Card> findByOwner(UserInfo user);
+    List<Card> findAllByOwner(UserInfo user);
 }

@@ -8,4 +8,3 @@ public interface CardCryptoService {
 
     String extractLast4(String plainCardNumber);
 }
-

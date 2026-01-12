@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +22,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userService;
+//    private static final List<String> SWAGGER_WHITELIST = List.of(
+//        "/v3/api-docs",
+//        "/v3/api-docs/",
+//        "/swagger-ui",
+//        "/swagger-ui/"
+//    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -28,6 +35,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
         throws ServletException, IOException {
 
+//        String path = request.getServletPath();
+//
+//        if (SWAGGER_WHITELIST.stream().anyMatch(path::startsWith)) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

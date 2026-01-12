@@ -1,5 +1,6 @@
 package com.example.bankcards.security;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -44,62 +45,27 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails user) {
-        return extractUsername(token).equals(user.getUsername());
-    }
-
-/*
-    public String generateToken(UserInfo userInfo) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("id", userInfo.getId());
-//        claims.put("email", userInfo.getEmail());
-        claims.put("roles", userInfo.getAuthorities());
-        return createToken(claims, userInfo.getUsername());
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        Date expirationDate = extractExpiration(token);
-        if (expirationDate.before(new Date())) {
+        try {
+            if (extractUsername(token).equals(user.getUsername())) {
+                return !isTokenExpired(token);
+            }
+            return false;
+        } catch (JwtException e) {
             return false;
         }
-        String username = extractUsername(token);
-        return userDetails.getUsername().equals(username) && !expirationDate.before(new Date());
     }
 
-    private String createToken(Map<String, Object> claims, String username) {
-        return Jwts.builder()
-            .setClaims(claims)
-            .setSubject(username)
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignKey(), SignatureAlgorithm.HS256)
-            .compact();
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expirationDate = Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+            return expirationDate.before(new Date());
+        } catch (JwtException e) {
+            return true; // Токен недействителен
+        }
     }
-
-    private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts
-            .parserBuilder()
-            .setSigningKey(getSignKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
-    }
- */
 }
