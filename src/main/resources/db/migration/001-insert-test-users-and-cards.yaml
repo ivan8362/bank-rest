@@ -1,0 +1,123 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: insert-users
+      author: ivan
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 1000
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: "$2a$10$VJw4kYaE6/va73CJlRofKOrCCNEn/EswyxHG5W.6ZOXVS2kJcfFzy" # test12
+              - column:
+                  name: role
+                  value: ADMIN
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 2000
+              - column:
+                  name: username
+                  value: user
+              - column:
+                  name: password
+                  value: "$2a$10$VJw4kYaE6/va73CJlRofKOrCCNEn/EswyxHG5W.6ZOXVS2kJcfFzy" # test12
+              - column:
+                  name: role
+                  value: USER
+
+  - changeSet:
+      id: insert-cards
+      author: ivan
+      changes:
+        - insert:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 100
+              - column:
+                  name: card_number_encrypted
+                  value: "1111222233334444"
+              - column:
+                  name: last4
+                  value: "4444"
+              - column:
+                  name: expiry_date
+                  value: "2030-01"
+              - column:
+                  name: balance
+                  valueNumeric: 1000
+              - column:
+                  name: status
+                  value: ACTIVE
+              - column:
+                  name: user_id
+                  valueNumeric: 1000
+
+        - insert:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 101
+              - column:
+                  name: card_number_encrypted
+                  value: "5555666677778888"
+              - column:
+                  name: last4
+                  value: "8888"
+              - column:
+                  name: expiry_date
+                  value: "2030-01"
+              - column:
+                  name: balance
+                  valueNumeric: 500
+              - column:
+                  name: status
+                  value: ACTIVE
+              - column:
+                  name: user_id
+                  valueNumeric: 2000
+
+        - insert:
+            tableName: cards
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: 102
+              - column:
+                  name: card_number_encrypted
+                  value: "9999000011112222"
+              - column:
+                  name: last4
+                  value: "2222"
+              - column:
+                  name: expiry_date
+                  value: "2030-01"
+              - column:
+                  name: balance
+                  valueNumeric: 0
+              - column:
+                  name: status
+                  value: BLOCKED
+              - column:
+                  name: user_id
+                  valueNumeric: 2000
+rollback:
+  - delete:
+      tableName: cards
+      where: id in (100,101,102)
+  - delete:
+      tableName: users
+      where: id in (1000,2000)

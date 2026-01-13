@@ -106,6 +106,7 @@ class CardSpecificationsTest {
 
     private Card createCard(String number, UserInfo owner, Status status, BigDecimal balance, YearMonth expiry) {
         Card card = new Card();
+        card.setCardNumberEncrypted("encrypted");
         card.setLast4(number);
         card.setOwner(owner);
         card.setStatus(status);

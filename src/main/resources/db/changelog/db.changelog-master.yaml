@@ -77,3 +77,5 @@ databaseChangeLog:
             referencedTableName: users
             referencedColumnNames: id
             constraintName: fk_cards_user
+  - include:
+      file: db/migration/001-insert-test-users-and-cards.yaml

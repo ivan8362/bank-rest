@@ -39,22 +39,17 @@ public class CardController {
     private final CardService cardService;
     private static final Logger LOGGER = LoggerFactory.getLogger(CardController.class);
 
-    @GetMapping("/hello")
-    public ResponseEntity<?> getById() {
-        return ResponseEntity.ok("hello-world");
-    }
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public Long createCard(@Valid @RequestBody CreateCardDto createCardDto) {
-        LOGGER.info("Called API POST /cards/new");
+        LOGGER.info("Called API POST /cards");
         return cardService.createCard(createCardDto);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/cards")
     public List<CardDto> getAllCards() {
-        LOGGER.info("Called API GET /cards/all");
+        LOGGER.info("Called API GET /cards/cards");
         return cardService.getAllCards();
     }
 
@@ -89,11 +84,12 @@ public class CardController {
     @GetMapping("/simple")
     @PreAuthorize("hasRole('USER')")
     public List<CardDto> myCardsNoSearch(Authentication authentication) {
+        LOGGER.info("Called API GET /cards/simple");
         UserInfo user = (UserInfo) authentication.getPrincipal();
         return cardService.getMyCardsNoSearch(user);
     }
 
-    @GetMapping("my")
+    @GetMapping
     @PreAuthorize("hasRole('USER')")
     public Page<CardDto> myCards(
         Authentication authentication,
@@ -105,7 +101,7 @@ public class CardController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        LOGGER.info("Called API GET /cards/my");
+        LOGGER.info("Called API GET /cards");
 
         UserInfo user = (UserInfo) authentication.getPrincipal();
         return cardService.getMyCards(
@@ -142,6 +138,7 @@ public class CardController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{cardId}/block")
     public void requestBlock(@PathVariable Long cardId, Authentication auth) {
+        LOGGER.info("Called API POST /cards/{cardId}/block");
         UserInfo user = (UserInfo) auth.getPrincipal();
         cardService.requestBlock(cardId, user);
     }

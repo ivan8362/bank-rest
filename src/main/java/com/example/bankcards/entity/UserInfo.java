@@ -53,15 +53,27 @@ public class UserInfo implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isAccountNonExpired() {
+        return true;
+    }
+    @Override public boolean isAccountNonLocked() {
+        return true;
+    }
+    @Override public boolean isCredentialsNonExpired() {
+        return true;
+    }
+    @Override public boolean isEnabled() {
+        return true;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserInfo)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UserInfo)) {
+            return false;
+        }
         return id != null && id.equals(((UserInfo) o).id);
     }
 

@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +32,6 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/welcome")
@@ -43,15 +41,17 @@ public class UserController {
 
     @PostMapping
     public UserInfo addNewUser(@Valid @RequestBody UserDto user) {
+        LOGGER.info("Called API POST /users");
         UserInfo userInfo = new UserInfo();
         userInfo.setUsername(user.getUsername());
-        userInfo.setPassword(passwordEncoder.encode(user.getPassword()));
+        userInfo.setPassword(user.getPassword());
         userInfo.setRole(user.getRole());
         return userService.addUser(userInfo);
     }
 
     @PostMapping("/authenticate")
     public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        LOGGER.info("Called API POST /users/authenticate");
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
